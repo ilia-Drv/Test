@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Animation</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: black;
+      color: white;
+    }
+
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <script>
+    var b = document.body;
+    var c = document.getElementById("c");
+    var a = c.getContext("2d");
+
+    // تنظیم ابعاد canvas
+    c.width = window.innerWidth;
+    c.height = window.innerHeight;
+
+    var v = 100; // تعداد خطوط
+    var e = [];
+    var h = [];
+    var O = c.width;
+    var Q = c.height;
+
+    var M = Math;
+    var R = M.random;
+    var C = M.cos;
+    var S, B;
+    var targetX = null;
+    var targetY = null;
+
+    // تولید خطوط
+    for (var i = 0; i < v; i++) {
+      x = R() * O;
+      y = R() * Q;
+
+      H = (i / v) * 360;
+      S = R() * 40 + 60;
+      B = R() * 60 + 20;
+
+      var f = [];
+
+      for (var k = 0; k < v; k++) {
+        f[k] = {
+          x: x,
+          y: y,
+          X: 0,
+          Y: 0,
+          R: 1 - k / v + 1,
+          S: R() + 1,
+          q: ~~(R() * v),
+          D: (i % 2) * 2 - 1,
+          F: R() * 0.2 + 0.7,
+          f: "hsla(" + ~~H + "," + ~~S + "%," + ~~B + "%,.1)",
+        };
+      }
+      e.push(f);
+    }
+
+    // رسم خطوط
+    function render(_) {
+      a.fillStyle = _.f;
+      a.beginPath();
+      a.arc(_.x, _.y, _.R, 0, Math.PI * 2, 1);
+      a.closePath();
+      a.fill();
+    }
+
+    // حلقه انیمیشن
+    function loop() {
+      a.fillStyle = "rgba(0,0,0,.2)";
+      a.fillRect(0, 0, O, Q);
+
+      for (var i = 0; i < e.length; i++) {
+        var f = e[i];
+        var u = f[0];
+
+        // اگر کلیک یا لمس انجام شده باشد، خطوط به سمت نقطه هدف حرکت می‌کنند
+        if (targetX !== null && targetY !== null) {
+          D = u.x - targetX;
+          E = u.y - targetY;
+        } else {
+          // در غیر این صورت، به سمت نقاط تصادفی حرکت می‌کنند
+          D = u.x - R() * O;
+          E = u.y - R() * Q;
+        }
+
+        G = M.sqrt(D * D + E * E);
+        u.X += (-D / G) * u.S;
+        u.Y += (-E / G) * u.S;
+
+        u.x += u.X;
+        u.y += u.Y;
+
+        render(u);
+
+        u.X *= u.F;
+        u.Y *= u.F;
+
+        for (var k = 1; k < v; k++) {
+          var T = f[k - 1];
+          var N = f[k];
+
+          N.x -= (N.x - T.x) * 0.7;
+          N.y -= (N.y - T.y) * 0.7;
+
+          render(N);
+        }
+      }
+
+      // پاک کردن نقطه هدف پس از چند فریم
+      if (Math.random() > 0.99) {
+        targetX = null;
+        targetY = null;
+      }
+
+      requestAnimationFrame(loop);
+    }
+
+    // دریافت موقعیت کلیک موس یا لمس
+    function setTarget(e) {
+      targetX = e.clientX || e.touches[0].clientX;
+      targetY = e.clientY || e.touches[0].clientY;
+    }
+
+    c.addEventListener('click', setTarget);
+    c.addEventListener('touchstart', setTarget);
+
+    loop();
+  </script>
+</body>
+</html>
