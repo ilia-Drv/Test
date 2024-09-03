@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Lines</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: black;
+            color: white;
+        }
+
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="c"></canvas>
+    <script>
+        var c = document.getElementById("c");
+        var ctx = c.getContext("2d");
+
+        // تنظیم ابعاد canvas
+        c.width = window.innerWidth;
+        c.height = window.innerHeight;
+
+        var numberOfLines = 200;  // تعداد خطوط
+        var lines = [];
+        var O = c.width;
+        var Q = c.height;
+        var M = Math;
+        var R = M.random;
+        var Y = Math.PI * 2; // برای رسم دایره کامل
+
+        // تولید خطوط
+        for (var i = 0; i < numberOfLines; i++) {
+            var line = {
+                x: R() * O,
+                y: R() * Q,
+                X: 0,
+                Y: 0,
+                S: R() + 1,
+                directionX: (R() - 0.5) * 2,
+                directionY: (R() - 0.5) * 2,
+                color: "hsla(" + ~~(R() * 360) + ",100%,50%,0.2)"
+            };
+            lines.push(line);
+        }
+
+        // رسم خطوط
+        function render(line) {
+            ctx.fillStyle = line.color;
+            ctx.beginPath();
+            ctx.arc(line.x, line.y, 1, 0, Y, 1); // شعاع 1 برای باریک کردن خطوط
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // حلقه انیمیشن
+        function loop() {
+            ctx.fillStyle = "rgba(0,0,0,0.1)";
+            ctx.fillRect(0, 0, O, Q);
+
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i];
+
+                line.x += line.directionX * line.S;
+                line.y += line.directionY * line.S;
+
+                // جلوگیری از خروج خطوط از صفحه
+                if (line.x > O || line.x < 0) {
+                    line.directionX *= -1;
+                }
+                if (line.y > Q || line.y < 0) {
+                    line.directionY *= -1;
+                }
+
+                render(line);
+            }
+
+            requestAnimationFrame(loop);
+        }
+
+        loop();
+    </script>
+</body>
+</html>
